@@ -182,6 +182,7 @@
   }
   .topline h1 { font-size: 26px; }
   .topline p.lede { color: var(--ink-soft); margin-top: 4px; font-size: 13.5px; }
+  .topline-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .btn {
     display: inline-flex;
@@ -429,7 +430,7 @@
   }
 
   @media (max-width: 860px) {
-    body { flex-direction: column; }
+    #appShell { flex-direction: column; }
     .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; align-items: center; padding: 12px 16px; overflow-x: auto; }
     .brand { border: none; padding: 0; margin: 0 16px 0 0; }
     nav.mainnav { flex-direction: row; }
@@ -437,6 +438,10 @@
     .main { padding: 20px; }
     .grid-stats { grid-template-columns: 1fr 1fr; }
     .field-row { grid-template-columns: 1fr; }
+    .topline { flex-direction: column; align-items: stretch; }
+    .topline > *:last-child { width: 100%; }
+    .topline > .btn:last-child { justify-content: center; }
+    .topline-actions .btn { flex: 1 1 0; white-space: normal; }
     .exercise-row, .exercise-head { grid-template-columns: 1.4fr 0.6fr 0.6fr 0.6fr 32px; }
     .exercise-row input:nth-child(5), .exercise-head span:nth-child(5),
     .exercise-row input:nth-child(6), .exercise-head span:nth-child(6) { display: none; }
@@ -470,7 +475,7 @@
   <section class="view active" id="view-dashboard">
     <div class="topline">
       <div>
-        <h1>Bom trabalho por aí</h1>
+        <h1 id="dashHeadline">Bom trabalho por aí</h1>
         <p class="lede" id="todayLabel"></p>
       </div>
     </div>
@@ -506,7 +511,7 @@
   <section class="view" id="view-treinos">
     <div class="topline">
       <div><h1>Planos de treino</h1><p class="lede">Cria modelos de treino e associa-os a um aluno.</p></div>
-      <div style="display:flex; gap:8px;">
+      <div class="topline-actions">
         <button class="btn secondary" onclick="printAllPlans()">Imprimir planos</button>
         <button class="btn" onclick="openPlanModal()">+ Novo plano</button>
       </div>
@@ -518,7 +523,7 @@
   <section class="view" id="view-agenda">
     <div class="topline">
       <div><h1>Agenda</h1><p class="lede">Sessões marcadas com os teus alunos.</p></div>
-      <div style="display:flex; gap:8px;">
+      <div class="topline-actions">
         <button class="btn secondary" onclick="printAgenda()">Imprimir calendário</button>
         <button class="btn" onclick="openSessionModal()">+ Marcar sessão</button>
       </div>
@@ -811,7 +816,28 @@ function closeModal(id) { document.getElementById(id).classList.remove('active')
 function openModalEl(id) { document.getElementById(id).classList.add('active'); }
 
 // ---------- Dashboard ----------
+const DASH_HEADLINES = [
+  'Hoje também há treino — ou é só para inglês ver?',
+  'A tua planilha está mais organizada que a tua vida? Boa.',
+  'Alunos a suar, tu a organizar. Equipa vencedora.',
+  'Mais um dia, mais um PR à espreita.',
+  'Aqui não há "amanhã eu treino".',
+  'Bíceps à parte, hoje o que precisa de músculo é a agenda.',
+  'Cada aluno concluído é uma vitória. Vai lá coleciona-las.',
+  'O leg day dos alunos, a gestão é contigo.',
+  'Ninguém disse que ser PT era só contar repetições.',
+  'Se a disciplina fosse fácil, não se chamava disciplina.',
+  'Café tomado? Ficheiros a postos. Vamos a isto.',
+  'Hoje o único "descanso ativo" é ver o painel.',
+];
+function pickDashHeadline() {
+  const seed = todayISO().split('-').join('');
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  return DASH_HEADLINES[hash % DASH_HEADLINES.length];
+}
 function renderDashboard() {
+  document.getElementById('dashHeadline').textContent = pickDashHeadline();
   document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
   const activeStudents = data.students.filter(s => s.active !== false);
   document.getElementById('statAlunos').textContent = activeStudents.length;
