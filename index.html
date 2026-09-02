@@ -77,8 +77,16 @@
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 14px;
     line-height: 1.5;
-    display: flex;
-    min-height: 100vh;
+    margin: 0;
+  }
+  #appShell { display: flex; min-height: 100vh; }
+  .site-footer {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    padding: 16px 10px;
+    border-top: 1px solid var(--line-soft);
+    background: var(--bg);
   }
   h1, h2, h3, .display {
     font-family: 'Fraunces', Georgia, serif;
@@ -396,6 +404,30 @@
 
   ::placeholder { color: var(--ink-soft); opacity: 0.7; }
 
+  /* ---------- Impressão ---------- */
+  #printArea { display: none; }
+  @media print {
+    body.printing > #appShell,
+    body.printing > .site-footer { display: none !important; }
+    body.printing .overlay,
+    body.printing .modal-overlay { display: none !important; }
+    body.printing #printArea { display: block !important; }
+    #printArea {
+      max-width: 100%;
+      padding: 0;
+      color: #111;
+      background: #fff;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    #printArea h1 { font-family: 'Fraunces', Georgia, serif; font-size: 22px; margin: 0 0 4px; color: #111; }
+    #printArea h2 { font-size: 14px; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 1px solid #ccc; color: #111; }
+    #printArea table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 6px; }
+    #printArea th, #printArea td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+    #printArea th { background: #f2f2f2; }
+    #printArea .print-meta { color: #555; font-size: 11px; margin: 0 0 4px; }
+    #printArea .muted { color: #555; font-size: 12px; }
+  }
+
   @media (max-width: 860px) {
     body { flex-direction: column; }
     .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; align-items: center; padding: 12px 16px; overflow-x: auto; }
@@ -413,6 +445,7 @@
 </head>
 <body>
 
+<div id="appShell">
 <div class="sidebar">
   <div class="brand">
     <div class="brand-mark"></div>
@@ -473,7 +506,10 @@
   <section class="view" id="view-treinos">
     <div class="topline">
       <div><h1>Planos de treino</h1><p class="lede">Cria modelos de treino e associa-os a um aluno.</p></div>
-      <button class="btn" onclick="openPlanModal()">+ Novo plano</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn secondary" onclick="printAllPlans()">Imprimir planos</button>
+        <button class="btn" onclick="openPlanModal()">+ Novo plano</button>
+      </div>
     </div>
     <div id="plansList"></div>
   </section>
@@ -482,7 +518,10 @@
   <section class="view" id="view-agenda">
     <div class="topline">
       <div><h1>Agenda</h1><p class="lede">Sessões marcadas com os teus alunos.</p></div>
-      <button class="btn" onclick="openSessionModal()">+ Marcar sessão</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn secondary" onclick="printAgenda()">Imprimir calendário</button>
+        <button class="btn" onclick="openSessionModal()">+ Marcar sessão</button>
+      </div>
     </div>
     <div id="agendaList"></div>
   </section>
@@ -527,6 +566,11 @@
   </section>
 
 </div>
+</div>
+
+<footer class="site-footer">© <span id="footYear"></span> Nuno Prazeres · nprazeres2@gmail.com</footer>
+
+<div id="printArea"></div>
 
 <!-- Drawer: ficha do aluno -->
 <div class="overlay" id="studentDrawerOverlay">
@@ -540,6 +584,7 @@
     </div>
     <div style="display:flex; gap:8px; margin:12px 0 0; flex-wrap:wrap;">
       <button class="btn secondary small" onclick="editCurrentStudent()">Editar dados</button>
+      <button class="btn secondary small" onclick="printStudentFicha(currentStudentId)">Imprimir ficha</button>
       <button class="btn secondary small" onclick="exportStudentSnapshot(currentStudentId)">Enviar ficha ao aluno</button>
       <button class="btn ghost small" style="color:var(--red)" onclick="deleteCurrentStudent()">Remover aluno</button>
     </div>
@@ -1074,6 +1119,7 @@ function planCardHTML(p) {
     <div class="phead">
       <span class="pname">${p.name}</span>
       <div class="row-actions">
+        <button class="icon-btn" onclick="printPlan('${p.id}')">Imprimir</button>
         <button class="icon-btn" onclick="openPlanModal('${p.studentId||''}','${p.id}')">Editar</button>
         <button class="icon-btn" onclick="deletePlan('${p.id}')">Remover</button>
       </div>
@@ -1556,9 +1602,101 @@ function applyImport(mode) {
   alert('Importação concluída.');
 }
 
+// ---------- Impressão (ficha, planos, calendário) ----------
+function triggerPrint(title, bodyHtml) {
+  document.getElementById('printArea').innerHTML = `
+    <h1>${escapeHtml(title)}</h1>
+    <p class="print-meta">Gerado em ${fmtDateFull(todayISO())}</p>
+    ${bodyHtml}
+    <p class="print-meta" style="margin-top:26px;">© ${new Date().getFullYear()} Nuno Prazeres · nprazeres2@gmail.com</p>
+  `;
+  document.body.classList.add('printing');
+  window.print();
+}
+window.addEventListener('afterprint', () => document.body.classList.remove('printing'));
+
+function planTableHTML(exercises) {
+  return `<table><thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Carga</th><th>Descanso</th></tr></thead>
+    <tbody>${(exercises||[]).map(ex => `<tr>
+      <td>${escapeHtml(ex.name)}</td><td>${escapeHtml(ex.sets)||'—'}</td><td>${escapeHtml(ex.reps)||'—'}</td>
+      <td>${escapeHtml(ex.load)||'—'}</td><td>${escapeHtml(ex.rest)||'—'}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function printStudentFicha(studentId) {
+  const s = data.students.find(x => x.id === studentId);
+  if (!s) return;
+  const plans = data.plans.filter(p => p.studentId === studentId);
+  const sessions = data.sessions.filter(x => x.studentId === studentId).sort((a,b) => (b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
+  const ms = s.measurements || [];
+
+  const dadosHTML = `<table><tbody>
+    <tr><th style="width:140px">Telefone</th><td>${escapeHtml(s.phone)||'—'}</td></tr>
+    <tr><th>Email</th><td>${escapeHtml(s.email)||'—'}</td></tr>
+    <tr><th>Início</th><td>${fmtDateFull(s.start)}</td></tr>
+    <tr><th>Nível</th><td>${escapeHtml(s.level)||'—'}</td></tr>
+    <tr><th>Objetivo</th><td>${escapeHtml(s.goal)||'—'}</td></tr>
+    <tr><th>Notas</th><td>${escapeHtml(s.notes)||'—'}</td></tr>
+  </tbody></table>`;
+
+  const avalHTML = ms.length ? `<table><thead><tr><th>Data</th><th>Peso</th><th>% Gordura</th><th>Notas</th></tr></thead>
+    <tbody>${ms.map(m => `<tr><td>${fmtDateFull(m.date)}</td><td>${m.weight} kg</td><td>${m.fat!=null?m.fat+'%':'—'}</td><td>${escapeHtml(m.notes)||'—'}</td></tr>`).join('')}</tbody></table>`
+    : '<p class="muted">Sem avaliações registadas.</p>';
+
+  const planosHTML = plans.length ? plans.map(p => `<h3 style="font-size:13px;margin:10px 0 6px;">${escapeHtml(p.name)}</h3>${planTableHTML(p.exercises)}`).join('')
+    : '<p class="muted">Sem planos atribuídos.</p>';
+
+  const sessoesHTML = sessions.length ? `<table><thead><tr><th>Data</th><th>Hora</th><th>Tipo</th><th>Estado</th></tr></thead>
+    <tbody>${sessions.map(x => `<tr><td>${fmtDateFull(x.date)}</td><td>${x.time||'—'}</td><td>${escapeHtml(x.type)||'—'}</td><td>${x.status==='agendada'?'Agendada':x.status==='concluida'?'Concluída':'Cancelada'}</td></tr>`).join('')}</tbody></table>`
+    : '<p class="muted">Sem sessões registadas.</p>';
+
+  triggerPrint(s.name, `
+    <h2>Dados</h2>${dadosHTML}
+    <h2>Avaliações</h2>${avalHTML}
+    <h2>Planos de treino</h2>${planosHTML}
+    <h2>Sessões</h2>${sessoesHTML}
+  `);
+}
+
+function printPlan(planId) {
+  const p = data.plans.find(x => x.id === planId);
+  if (!p) return;
+  const st = data.students.find(s => s.id === p.studentId);
+  triggerPrint(p.name, `<p class="muted">${st ? escapeHtml(st.name) : 'Sem aluno atribuído'}</p>${planTableHTML(p.exercises)}`);
+}
+
+function printAllPlans() {
+  if (!data.plans.length) { alert('Ainda não há planos de treino para imprimir.'); return; }
+  const body = data.plans.map(p => {
+    const st = data.students.find(s => s.id === p.studentId);
+    return `<h2>${escapeHtml(p.name)}</h2><p class="muted">${st ? escapeHtml(st.name) : 'Sem aluno atribuído'}</p>${planTableHTML(p.exercises)}`;
+  }).join('');
+  triggerPrint('Planos de treino', body);
+}
+
+function printAgenda() {
+  const upcoming = data.sessions
+    .filter(s => s.status !== 'cancelada' && s.date >= todayISO())
+    .sort((a,b) => (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  if (!upcoming.length) { alert('Sem sessões marcadas para imprimir.'); return; }
+  const byDate = {};
+  upcoming.forEach(s => { (byDate[s.date] = byDate[s.date] || []).push(s); });
+  const body = Object.keys(byDate).sort().map(d => {
+    const list = byDate[d].sort((a,b) => (a.time||'').localeCompare(b.time||''));
+    return `<h2>${fmtDateFull(d)}</h2><table><thead><tr><th>Hora</th><th>Aluno</th><th>Tipo</th></tr></thead>
+      <tbody>${list.map(s => {
+        const st = data.students.find(x => x.id === s.studentId);
+        return `<tr><td>${s.time||'—'}</td><td>${st ? escapeHtml(st.name) : '—'}</td><td>${escapeHtml(s.type)||'—'}</td></tr>`;
+      }).join('')}</tbody></table>`;
+  }).join('');
+  triggerPrint('Calendário de agendamentos', body);
+}
+
 // ---------- Init ----------
 loadData();
 initCapabilities();
+const fy = document.getElementById('footYear');
+if (fy) fy.textContent = new Date().getFullYear();
 renderDashboard();
 renderAlunos();
 renderPlans();
