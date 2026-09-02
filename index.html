@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha — Gestão de Treinos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0EEE7;
+    --bg-panel: #FFFFFF;
+    --bg-sidebar: #16233B;
+    --sidebar-ink: #C7D0E0;
+    --sidebar-ink-dim: #7C8CAA;
+    --ink: #171B1F;
+    --ink-soft: #5B6470;
+    --line: #DCD7CA;
+    --line-soft: #E9E5DA;
+    --navy: #223354;
+    --mustard: #C98A0E;
+    --mustard-bg: #FBF0DA;
+    --red: #A93B2E;
+    --red-bg: #FBE9E4;
+    --green: #2F6B49;
+    --green-bg: #E4F1E7;
+    --radius: 3px;
+    --shadow: 0 1px 2px rgba(23,27,31,0.06), 0 8px 24px -12px rgba(23,27,31,0.18);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #14181C;
+      --bg-panel: #1B2025;
+      --bg-sidebar: #0E1520;
+      --sidebar-ink: #C7D0E0;
+      --sidebar-ink-dim: #5D6C87;
+      --ink: #E9E6DE;
+      --ink-soft: #9BA3AC;
+      --line: #2B3138;
+      --line-soft: #23282E;
+      --navy: #7C93BE;
+      --mustard: #E3A93B;
+      --mustard-bg: #2E2513;
+      --red: #DB8477;
+      --red-bg: #3A211D;
+      --green: #7FBE97;
+      --green-bg: #1B2E22;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181C;
+    --bg-panel: #1B2025;
+    --bg-sidebar: #0E1520;
+    --sidebar-ink: #C7D0E0;
+    --sidebar-ink-dim: #5D6C87;
+    --ink: #E9E6DE;
+    --ink-soft: #9BA3AC;
+    --line: #2B3138;
+    --line-soft: #23282E;
+    --navy: #7C93BE;
+    --mustard: #E3A93B;
+    --mustard-bg: #2E2513;
+    --red: #DB8477;
+    --red-bg: #3A211D;
+    --green: #7FBE97;
+    --green-bg: #1B2E22;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .display {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .num { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
+  button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--bg-sidebar);
+    color: var(--sidebar-ink);
+    display: flex;
+    flex-direction: column;
+    padding: 22px 14px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 4px 10px 22px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 16px;
+  }
+  .brand-mark {
+    width: 26px; height: 26px;
+    background: var(--mustard);
+    border-radius: 6px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 14px; height: 3px;
+    background: var(--bg-sidebar);
+    transform: translate(-50%,-50%);
+    box-shadow: 0 -5px 0 var(--bg-sidebar), 0 5px 0 var(--bg-sidebar);
+    border-radius: 2px;
+  }
+  .brand-name { font-family: 'Fraunces', serif; font-size: 19px; color: #fff; font-weight: 600; }
+  .brand-sub { font-size: 10.5px; color: var(--sidebar-ink-dim); text-transform: none; }
+
+  nav.mainnav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  nav.mainnav button {
+    all: unset;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: var(--sidebar-ink);
+    transition: background 0.12s;
+  }
+  nav.mainnav button:hover { background: rgba(255,255,255,0.06); }
+  nav.mainnav button.active { background: rgba(233,168,58,0.15); color: #fff; font-weight: 600; }
+  nav.mainnav button .ic { width: 16px; text-align: center; opacity: 0.85; font-size: 14px; }
+  nav.mainnav button .count {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--sidebar-ink-dim);
+  }
+  .sidebar-foot {
+    font-size: 11px;
+    color: var(--sidebar-ink-dim);
+    padding: 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ---------- Main ---------- */
+  .main { flex: 1; min-width: 0; padding: 30px 40px 60px; max-width: 1180px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .topline {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 26px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .topline h1 { font-size: 26px; }
+  .topline p.lede { color: var(--ink-soft); margin-top: 4px; font-size: 13.5px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 500; }
+  .btn.danger { background: var(--red); }
+  .btn.ghost { background: transparent; color: var(--ink-soft); padding: 6px 8px; font-weight: 500; }
+  .btn.small { padding: 6px 11px; font-size: 12px; }
+
+  /* Dashboard cards */
+  .grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 30px; }
+  .stat-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .stat-card .label { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 8px; }
+  .stat-card .value { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 600; }
+  .stat-card .value.mustard { color: var(--mustard); }
+  .stat-card .value.red { color: var(--red); }
+
+  .panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 20px;
+  }
+  .panel h2 { font-size: 16px; margin-bottom: 14px; }
+
+  .session-row, .list-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 13.5px;
+  }
+  .session-row:last-child, .list-row:last-child { border-bottom: none; }
+  .session-row .date-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    background: var(--line-soft);
+    padding: 3px 7px;
+    border-radius: 4px;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .session-row .who { font-weight: 600; }
+  .session-row .what { color: var(--ink-soft); }
+  .empty-msg { color: var(--ink-soft); font-size: 13px; padding: 6px 0; }
+
+  /* Alunos list */
+  .toolbar { display: flex; gap: 10px; margin-bottom: 18px; align-items: center; }
+  .search-input {
+    flex: 1;
+    max-width: 280px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-panel);
+  }
+  .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .student-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.12s;
+  }
+  .student-card:hover { border-color: var(--navy); }
+  .student-card .name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .student-card .goal { color: var(--ink-soft); font-size: 12.5px; margin-bottom: 10px; }
+  .tag {
+    display: inline-block;
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .tag.active { background: var(--green-bg); color: var(--green); }
+  .tag.inactive { background: var(--line-soft); color: var(--ink-soft); }
+
+  /* Detail drawer */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(20,20,20,0.4);
+    z-index: 50;
+    align-items: stretch;
+    justify-content: flex-end;
+  }
+  .overlay.active { display: flex; }
+  .drawer {
+    width: min(620px, 100%);
+    background: var(--bg-panel);
+    height: 100%;
+    overflow-y: auto;
+    padding: 28px 32px 60px;
+    box-shadow: var(--shadow);
+  }
+  .drawer-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .drawer-head h2 { font-size: 22px; }
+  .close-x { all: unset; cursor: pointer; color: var(--ink-soft); font-size: 20px; padding: 4px; line-height: 1; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: 18px 0 18px; }
+  .tabs button {
+    all: unset; cursor: pointer;
+    padding: 8px 4px; margin-right: 18px;
+    font-size: 13px; color: var(--ink-soft); font-weight: 500;
+    border-bottom: 2px solid transparent;
+  }
+  .tabs button.active { color: var(--ink); border-bottom-color: var(--mustard); font-weight: 600; }
+  .tabpane { display: none; }
+  .tabpane.active { display: block; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-size: 11.5px; color: var(--ink-soft); font-weight: 600; }
+  .field input, .field select, .field textarea {
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-panel);
+    color: var(--ink);
+  }
+  .field textarea { resize: vertical; min-height: 54px; }
+
+  table.mini { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.mini th {
+    text-align: left; font-size: 10.5px; text-transform: none;
+    color: var(--ink-soft); font-weight: 600; padding: 6px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.mini td { padding: 8px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+  table.mini tr:last-child td { border-bottom: none; }
+  .row-actions { display: flex; gap: 4px; }
+  .icon-btn { all: unset; cursor: pointer; padding: 4px 6px; color: var(--ink-soft); border-radius: 4px; font-size: 13px; }
+  .icon-btn:hover { background: var(--line-soft); color: var(--ink); }
+
+  .measure-chart { display: flex; align-items: flex-end; gap: 6px; height: 90px; margin: 10px 0 4px; padding: 0 2px; }
+  .measure-bar { flex: 1; background: var(--navy); border-radius: 2px 2px 0 0; position: relative; min-height: 2px; }
+  .measure-bar .mv { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; white-space: nowrap; }
+  .measure-labels { display: flex; gap: 6px; padding: 0 2px; }
+  .measure-labels span { flex: 1; text-align: center; font-size: 9.5px; color: var(--ink-soft); }
+
+  /* Treinos */
+  .plan-card { background: var(--bg-panel); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+  .plan-card .phead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .plan-card .pname { font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px; }
+  .plan-card .pmeta { color: var(--ink-soft); font-size: 12px; margin-bottom: 10px; }
+  .exercise-row { display: grid; grid-template-columns: 1.3fr 0.5fr 0.5fr 0.6fr 0.5fr 0.9fr 32px; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .exercise-row input { padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-panel); color: var(--ink); font-size: 12.5px; width: 100%; }
+  .exercise-head { display: grid; grid-template-columns: 1.3fr 0.5fr 0.5fr 0.6fr 0.5fr 0.9fr 32px; gap: 8px; font-size: 10.5px; color: var(--ink-soft); font-weight: 600; margin-bottom: 6px; }
+  .media-link { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--navy); font-weight: 600; text-decoration: none; }
+  .media-link:hover { text-decoration: underline; }
+
+  /* Registo de sessão (log) */
+  .log-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  .log-table th { text-align: left; font-size: 10px; color: var(--ink-soft); font-weight: 600; padding: 5px 6px; }
+  .log-table td { padding: 5px 6px; }
+  .log-table input { width: 100%; padding: 6px 7px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-panel); color: var(--ink); font-size: 12.5px; }
+  .log-summary { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+
+  /* Pagamentos (ledger) */
+  .billing-type-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: var(--line-soft); color: var(--ink-soft); }
+  .pkg-progress { height: 5px; background: var(--line-soft); border-radius: 4px; overflow: hidden; margin-top: 4px; width: 100%; max-width: 140px; }
+  .pkg-progress-fill { height: 100%; background: var(--navy); }
+  .student-ledger-card { background: var(--bg-panel); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+  .student-ledger-card .lhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .student-ledger-card .lname { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15.5px; }
+
+  /* Agenda */
+  .day-group { margin-bottom: 22px; }
+  .day-group h3 { font-size: 13px; color: var(--ink-soft); text-transform: none; margin-bottom: 8px; font-family: 'Inter'; font-weight: 600; }
+  .agenda-row { display: flex; align-items: center; gap: 14px; background: var(--bg-panel); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; }
+  .agenda-row .time { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 14px; width: 52px; flex-shrink: 0; }
+  .agenda-row .info { flex: 1; }
+  .agenda-row .info .who { font-weight: 600; }
+  .agenda-row .info .what { color: var(--ink-soft); font-size: 12.5px; }
+  .status-pill { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px; text-transform: none; }
+  .status-pill.agendada { background: var(--mustard-bg); color: var(--mustard); }
+  .status-pill.concluida { background: var(--green-bg); color: var(--green); }
+  .status-pill.cancelada { background: var(--red-bg); color: var(--red); }
+
+  /* Pagamentos */
+  .pay-table th, .pay-table td { padding: 10px 12px; }
+  .pay-table { width: 100%; border-collapse: collapse; background: var(--bg-panel); border: 1px solid var(--line-soft); border-radius: var(--radius); overflow: hidden; }
+  .pay-table th { text-align: left; font-size: 11px; color: var(--ink-soft); background: var(--line-soft); font-weight: 600; }
+  .pay-table td { border-top: 1px solid var(--line-soft); font-size: 13px; }
+  .pay-status { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; border: none; cursor: pointer; }
+  .pay-status.pago { background: var(--green-bg); color: var(--green); }
+  .pay-status.pendente { background: var(--red-bg); color: var(--red); }
+  .month-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .month-nav button { all: unset; cursor: pointer; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 13px; }
+  .month-nav .mlabel { font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px; min-width: 160px; text-align: center; }
+
+  /* Modal (simple centered) */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(20,20,20,0.45); z-index: 60; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.active { display: flex; }
+  .modal-box { background: var(--bg-panel); border-radius: 6px; padding: 26px 28px; width: min(440px, 100%); box-shadow: var(--shadow); max-height: 88vh; overflow-y: auto; }
+  .modal-box h3 { font-size: 17px; margin-bottom: 16px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+  select#studentFilterSelect { padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-panel); color: var(--ink); }
+
+  ::placeholder { color: var(--ink-soft); opacity: 0.7; }
+
+  @media (max-width: 860px) {
+    body { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; align-items: center; padding: 12px 16px; overflow-x: auto; }
+    .brand { border: none; padding: 0; margin: 0 16px 0 0; }
+    nav.mainnav { flex-direction: row; }
+    .sidebar-foot { display: none; }
+    .main { padding: 20px; }
+    .grid-stats { grid-template-columns: 1fr 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+    .exercise-row, .exercise-head { grid-template-columns: 1.4fr 0.6fr 0.6fr 0.6fr 32px; }
+    .exercise-row input:nth-child(5), .exercise-head span:nth-child(5),
+    .exercise-row input:nth-child(6), .exercise-head span:nth-child(6) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div>
+      <div class="brand-name">Ficha</div>
+    </div>
+  </div>
+  <nav class="mainnav">
+    <button data-view="dashboard" class="active"><span class="ic">&#9679;</span> Painel</button>
+    <button data-view="alunos"><span class="ic">&#9679;</span> Alunos <span class="count" id="navCountAlunos">0</span></button>
+    <button data-view="treinos"><span class="ic">&#9679;</span> Treinos <span class="count" id="navCountTreinos">0</span></button>
+    <button data-view="agenda"><span class="ic">&#9679;</span> Agenda <span class="count" id="navCountAgenda">0</span></button>
+    <button data-view="pagamentos"><span class="ic">&#9679;</span> Pagamentos</button>
+    <button data-view="dados"><span class="ic">&#9679;</span> Dados</button>
+  </nav>
+  <div class="sidebar-foot" id="sidebarFoot">Dados guardados neste dispositivo</div>
+</div>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <section class="view active" id="view-dashboard">
+    <div class="topline">
+      <div>
+        <h1>Bom trabalho por aí</h1>
+        <p class="lede" id="todayLabel"></p>
+      </div>
+    </div>
+    <div class="grid-stats">
+      <div class="stat-card"><div class="label">Alunos ativos</div><div class="value" id="statAlunos">0</div></div>
+      <div class="stat-card"><div class="label">Sessões hoje</div><div class="value mustard" id="statHoje">0</div></div>
+      <div class="stat-card"><div class="label">Sessões esta semana</div><div class="value" id="statSemana">0</div></div>
+      <div class="stat-card"><div class="label">Pagamentos pendentes</div><div class="value red" id="statPendentes">0</div></div>
+    </div>
+    <div class="panel">
+      <h2>Próximas sessões</h2>
+      <div id="proximasSessoes"></div>
+    </div>
+    <div class="panel">
+      <h2>Pagamentos pendentes este mês</h2>
+      <div id="pendentesResumo"></div>
+    </div>
+  </section>
+
+  <!-- ALUNOS -->
+  <section class="view" id="view-alunos">
+    <div class="topline">
+      <div><h1>Alunos</h1><p class="lede">Fichas, avaliações e planos de cada aluno.</p></div>
+      <button class="btn" onclick="openStudentModal()">+ Novo aluno</button>
+    </div>
+    <div class="toolbar">
+      <input class="search-input" id="studentSearch" placeholder="Pesquisar aluno..." oninput="renderAlunos()">
+    </div>
+    <div class="student-grid" id="studentGrid"></div>
+  </section>
+
+  <!-- TREINOS -->
+  <section class="view" id="view-treinos">
+    <div class="topline">
+      <div><h1>Planos de treino</h1><p class="lede">Cria modelos de treino e associa-os a um aluno.</p></div>
+      <button class="btn" onclick="openPlanModal()">+ Novo plano</button>
+    </div>
+    <div id="plansList"></div>
+  </section>
+
+  <!-- AGENDA -->
+  <section class="view" id="view-agenda">
+    <div class="topline">
+      <div><h1>Agenda</h1><p class="lede">Sessões marcadas com os teus alunos.</p></div>
+      <button class="btn" onclick="openSessionModal()">+ Marcar sessão</button>
+    </div>
+    <div id="agendaList"></div>
+  </section>
+
+  <!-- PAGAMENTOS -->
+  <section class="view" id="view-pagamentos">
+    <div class="topline">
+      <div><h1>Pagamentos</h1><p class="lede">Mensalidades, sessões avulsas e pacotes — tudo num só registo por aluno.</p></div>
+      <button class="btn" onclick="openPaymentModal()">+ Novo pagamento</button>
+    </div>
+    <div id="ledgerList"></div>
+  </section>
+
+  <!-- DADOS -->
+  <section class="view" id="view-dados">
+    <div class="topline">
+      <div><h1>Dados</h1><p class="lede">Exporta, importa ou faz cópia de segurança de tudo o que está guardado nesta app.</p></div>
+    </div>
+
+    <div class="panel">
+      <h2>Cópia de segurança</h2>
+      <p class="lede" style="margin-bottom:14px">Descarrega um ficheiro .json com todos os alunos, planos, sessões e pagamentos. Guarda-o num local seguro (ex: Drive, email para ti próprio) para nunca perderes o histórico.</p>
+      <button class="btn" onclick="exportData()">Descarregar cópia de segurança</button>
+      <p class="lede" id="lastBackupLabel" style="margin-top:12px"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Importar dados</h2>
+      <p class="lede" style="margin-bottom:14px">Carrega um ficheiro .json exportado anteriormente por esta app.</p>
+      <input type="file" id="importFileInput" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
+      <button class="btn secondary" onclick="document.getElementById('importFileInput').click()">Escolher ficheiro...</button>
+      <span class="lede" id="importFileName" style="margin-left:10px"></span>
+      <div id="importPending" style="display:none; margin-top:16px; padding-top:14px; border-top:1px solid var(--line-soft)">
+        <p class="lede" id="importSummary" style="margin-bottom:12px"></p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn" onclick="applyImport('merge')">Juntar aos dados atuais</button>
+          <button class="btn danger" onclick="applyImport('replace')">Substituir tudo</button>
+          <button class="btn ghost small" onclick="cancelImport()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Drawer: ficha do aluno -->
+<div class="overlay" id="studentDrawerOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <div>
+        <h2 id="drawerName">—</h2>
+        <p class="lede" style="margin-top:2px" id="drawerGoal"></p>
+      </div>
+      <button class="close-x" onclick="closeDrawer()">&times;</button>
+    </div>
+    <div style="display:flex; gap:8px; margin:12px 0 0; flex-wrap:wrap;">
+      <button class="btn secondary small" onclick="editCurrentStudent()">Editar dados</button>
+      <button class="btn secondary small" onclick="exportStudentSnapshot(currentStudentId)">Enviar ficha ao aluno</button>
+      <button class="btn ghost small" style="color:var(--red)" onclick="deleteCurrentStudent()">Remover aluno</button>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="dados">Dados</button>
+      <button class="tab-btn" data-tab="avaliacoes">Avaliações</button>
+      <button class="tab-btn" data-tab="planos">Treinos</button>
+      <button class="tab-btn" data-tab="sessoes">Sessões</button>
+    </div>
+    <div class="tabpane active" id="tab-dados"></div>
+    <div class="tabpane" id="tab-avaliacoes">
+      <button class="btn small secondary" onclick="openMeasureModal()">+ Nova avaliação</button>
+      <div id="measureChartWrap" style="margin-top:16px;"></div>
+      <table class="mini" style="margin-top:14px;">
+        <thead><tr><th>Data</th><th>Peso</th><th>% Gordura</th><th>Notas</th><th></th></tr></thead>
+        <tbody id="measureTableBody"></tbody>
+      </table>
+    </div>
+    <div class="tabpane" id="tab-planos">
+      <button class="btn small secondary" onclick="openPlanModal(currentStudentId)">+ Atribuir plano</button>
+      <div id="studentPlansList" style="margin-top:14px;"></div>
+    </div>
+    <div class="tabpane" id="tab-sessoes">
+      <button class="btn small secondary" onclick="openSessionModal(currentStudentId)">+ Marcar sessão</button>
+      <div id="studentSessionsList" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: novo/editar aluno -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal-box">
+    <h3 id="studentModalTitle">Novo aluno</h3>
+    <input type="hidden" id="studentEditId">
+    <div class="field-row">
+      <div class="field full"><label>Nome</label><input id="sName" placeholder="Nome completo"></div>
+      <div class="field"><label>Telefone</label><input id="sPhone" placeholder="9xx xxx xxx"></div>
+      <div class="field"><label>Email</label><input id="sEmail" placeholder="email@exemplo.com"></div>
+      <div class="field"><label>Data de início</label><input type="date" id="sStart"></div>
+      <div class="field"><label>Nível</label>
+        <select id="sLevel"><option>Iniciante</option><option>Intermédio</option><option>Avançado</option></select>
+      </div>
+      <div class="field full"><label>Objetivo</label><input id="sGoal" placeholder="Ex: perda de peso, força, hipertrofia..."></div>
+      <div class="field full"><label>Notas</label><textarea id="sNotes" placeholder="Lesões, restrições, preferências..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('studentModal')">Cancelar</button>
+      <button class="btn" onclick="saveStudent()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: avaliação física -->
+<div class="modal-overlay" id="measureModal">
+  <div class="modal-box">
+    <h3>Nova avaliação</h3>
+    <div class="field-row">
+      <div class="field"><label>Data</label><input type="date" id="mDate"></div>
+      <div class="field"><label>Peso (kg)</label><input type="number" step="0.1" id="mWeight"></div>
+      <div class="field"><label>% Gordura</label><input type="number" step="0.1" id="mFat"></div>
+      <div class="field full"><label>Notas</label><input id="mNotes" placeholder="Opcional"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('measureModal')">Cancelar</button>
+      <button class="btn" onclick="saveMeasure()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: plano de treino -->
+<div class="modal-overlay" id="planModal">
+  <div class="modal-box" style="width:min(640px,100%)">
+    <h3 id="planModalTitle">Novo plano de treino</h3>
+    <input type="hidden" id="planEditId">
+    <div class="field-row">
+      <div class="field full"><label>Nome do plano</label><input id="pName" placeholder="Ex: Treino A - Full body"></div>
+      <div class="field full"><label>Aluno</label>
+        <select id="pStudent"><option value="">Sem aluno (modelo)</option></select>
+      </div>
+    </div>
+    <div class="exercise-head"><span>Exercício</span><span>Séries</span><span>Reps</span><span>Carga</span><span>Desc.</span><span>Foto/Vídeo</span><span></span></div>
+    <div id="exerciseRows"></div>
+    <button class="btn ghost small" onclick="addExerciseRow()">+ Adicionar exercício</button>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('planModal')">Cancelar</button>
+      <button class="btn" onclick="savePlan()">Guardar plano</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: sessão -->
+<div class="modal-overlay" id="sessionModal">
+  <div class="modal-box">
+    <h3>Marcar sessão</h3>
+    <input type="hidden" id="sessionEditId">
+    <div class="field-row">
+      <div class="field full"><label>Aluno</label><select id="seStudent"></select></div>
+      <div class="field"><label>Data</label><input type="date" id="seDate"></div>
+      <div class="field"><label>Hora</label><input type="time" id="seTime"></div>
+      <div class="field"><label>Duração (min)</label><input type="number" id="seDuration" value="60"></div>
+      <div class="field"><label>Tipo</label><input id="seType" placeholder="Ex: Ginásio, Outdoor..."></div>
+      <div class="field full"><label>Notas</label><input id="seNotes" placeholder="Opcional"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('sessionModal')">Cancelar</button>
+      <button class="btn" onclick="saveSession()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: pagamento -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-box">
+    <h3 id="paymentModalTitle">Novo pagamento</h3>
+    <input type="hidden" id="payEditId">
+    <div class="field-row">
+      <div class="field full"><label>Aluno</label><select id="payStudent"></select></div>
+      <div class="field"><label>Tipo</label>
+        <select id="payType" onchange="togglePackageFields()">
+          <option value="mensalidade">Mensalidade</option>
+          <option value="avulsa">Sessão avulsa</option>
+          <option value="pacote">Pacote de sessões</option>
+        </select>
+      </div>
+      <div class="field"><label>Data</label><input type="date" id="payDate"></div>
+      <div class="field"><label>Valor (€)</label><input type="number" step="0.01" id="payAmount" placeholder="Ex: 40"></div>
+      <div class="field" id="payPackageTotalField" style="display:none"><label>Nº de sessões no pacote</label><input type="number" id="payPackageTotal" placeholder="Ex: 10"></div>
+      <div class="field"><label>Estado</label>
+        <select id="payStatus"><option value="pendente">Pendente</option><option value="pago">Pago</option></select>
+      </div>
+      <div class="field full"><label>Descrição (opcional)</label><input id="payDescription" placeholder="Ex: Mensalidade de setembro"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('paymentModal')">Cancelar</button>
+      <button class="btn" onclick="savePayment()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: registo de sessão (o que foi feito) -->
+<div class="modal-overlay" id="sessionLogModal">
+  <div class="modal-box" style="width:min(560px,100%)">
+    <h3>Registar sessão</h3>
+    <input type="hidden" id="logSessionId">
+    <div class="field full" style="margin-bottom:12px;" id="logPlanPicker"></div>
+    <table class="log-table" id="logTable">
+      <thead><tr><th style="width:34%">Exercício</th><th>Séries feitas</th><th>Reps feitas</th><th>Carga usada</th></tr></thead>
+      <tbody id="logTableBody"></tbody>
+    </table>
+    <p class="empty-msg" id="logEmptyMsg" style="display:none">Este aluno ainda não tem nenhum plano de treino. Cria um em "Treinos" para poderes registar a sessão.</p>
+    <div class="field full" style="margin-top:12px;"><label>Notas da sessão</label><textarea id="logNotes" placeholder="Como correu, sensações, evolução..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('sessionLogModal')">Cancelar</button>
+      <button class="btn" onclick="saveSessionLog()">Guardar registo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal genérico: cópia manual de ficheiro (quando a transferência direta não está disponível) -->
+<div class="modal-overlay" id="downloadFallbackModal">
+  <div class="modal-box" style="width:min(560px,100%)">
+    <h3 id="downloadFallbackTitle">Copiar ficheiro</h3>
+    <p class="lede" style="margin-bottom:10px">A transferência direta não está disponível nesta vista. Copia o conteúdo abaixo e guarda-o num ficheiro novo com o nome indicado.</p>
+    <p class="lede" id="downloadFallbackFilename" style="font-weight:600; margin-bottom:8px;"></p>
+    <textarea id="downloadFallbackText" readonly style="width:100%; min-height:180px; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:10px; border:1px solid var(--line); border-radius:var(--radius); background:var(--bg-panel); color:var(--ink)"></textarea>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal('downloadFallbackModal')">Fechar</button>
+      <button class="btn" onclick="copyDownloadFallback()">Copiar texto</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- Data layer ----------
+const STORAGE_KEY = 'ficha-pt-data-v1';
+let data = { students: [], plans: [], sessions: [], payments: [] };
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) data = JSON.parse(raw);
+  } catch (e) { console.error('Erro ao carregar dados', e); }
+}
+function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  catch (e) { console.error('Erro ao guardar dados', e); }
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
+}
+function fmtDateFull(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+function todayISO() { return new Date().toISOString().slice(0,10); }
+
+// ---------- Navigation ----------
+document.querySelectorAll('nav.mainnav button').forEach(btn => {
+  btn.addEventListener('click', () => showView(btn.dataset.view));
+});
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav.mainnav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelector(`nav.mainnav button[data-view="${name}"]`).classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'alunos') renderAlunos();
+  if (name === 'treinos') renderPlans();
+  if (name === 'agenda') renderAgenda();
+  if (name === 'pagamentos') renderLedger();
+  if (name === 'dados') renderDadosView();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openModalEl(id) { document.getElementById(id).classList.add('active'); }
+
+// ---------- Dashboard ----------
+function renderDashboard() {
+  document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
+  const activeStudents = data.students.filter(s => s.active !== false);
+  document.getElementById('statAlunos').textContent = activeStudents.length;
+  document.getElementById('navCountAlunos').textContent = data.students.length;
+  document.getElementById('navCountTreinos').textContent = data.plans.length;
+
+  const today = todayISO();
+  const todaySessions = data.sessions.filter(s => s.date === today && s.status !== 'cancelada');
+  document.getElementById('statHoje').textContent = todaySessions.length;
+
+  const now = new Date();
+  const weekEnd = new Date(now); weekEnd.setDate(now.getDate() + 7);
+  const weekSessions = data.sessions.filter(s => {
+    const d = new Date(s.date + 'T00:00:00');
+    return d >= new Date(today + 'T00:00:00') && d <= weekEnd && s.status !== 'cancelada';
+  });
+  document.getElementById('statSemana').textContent = weekSessions.length;
+  document.getElementById('navCountAgenda').textContent = weekSessions.length;
+
+  const activeIds = new Set(activeStudents.map(s => s.id));
+  const pendingEntries = data.payments.filter(p => p.status === 'pendente' && activeIds.has(p.studentId));
+  document.getElementById('statPendentes').textContent = pendingEntries.length;
+
+  const upcoming = data.sessions
+    .filter(s => s.date >= today && s.status !== 'cancelada')
+    .sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time))
+    .slice(0,6);
+  const el = document.getElementById('proximasSessoes');
+  el.innerHTML = upcoming.length ? upcoming.map(s => {
+    const st = data.students.find(x => x.id === s.studentId);
+    return `<div class="session-row">
+      <span class="date-chip">${fmtDate(s.date)} · ${s.time||''}</span>
+      <span class="who">${st ? st.name : 'Aluno removido'}</span>
+      <span class="what">${s.type || ''}</span>
+    </div>`;
+  }).join('') : '<p class="empty-msg">Sem sessões marcadas. Vai à Agenda para marcar a próxima.</p>';
+
+  const pendEl = document.getElementById('pendentesResumo');
+  pendEl.innerHTML = pendingEntries.length ? pendingEntries.map(p => {
+    const st = data.students.find(s => s.id === p.studentId);
+    return `<div class="list-row">
+      <span class="who">${st ? st.name : '—'}</span>
+      <span class="what">${typeLabel(p.type)}${p.amount ? ' · €' + p.amount : ''}${p.description ? ' · ' + p.description : ''}</span>
+    </div>`;
+  }).join('') : '<p class="empty-msg">Sem pagamentos pendentes.</p>';
+}
+
+// ---------- Alunos ----------
+function openStudentModal(id) {
+  document.getElementById('studentModalTitle').textContent = id ? 'Editar aluno' : 'Novo aluno';
+  document.getElementById('studentEditId').value = id || '';
+  if (id) {
+    const s = data.students.find(x => x.id === id);
+    document.getElementById('sName').value = s.name || '';
+    document.getElementById('sPhone').value = s.phone || '';
+    document.getElementById('sEmail').value = s.email || '';
+    document.getElementById('sStart').value = s.start || '';
+    document.getElementById('sLevel').value = s.level || 'Iniciante';
+    document.getElementById('sGoal').value = s.goal || '';
+    document.getElementById('sNotes').value = s.notes || '';
+  } else {
+    ['sName','sPhone','sEmail','sStart','sGoal','sNotes'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('sLevel').value = 'Iniciante';
+    document.getElementById('sStart').value = todayISO();
+  }
+  openModalEl('studentModal');
+}
+function saveStudent() {
+  const name = document.getElementById('sName').value.trim();
+  if (!name) { alert('Indica o nome do aluno.'); return; }
+  const id = document.getElementById('studentEditId').value;
+  const payload = {
+    name,
+    phone: document.getElementById('sPhone').value.trim(),
+    email: document.getElementById('sEmail').value.trim(),
+    start: document.getElementById('sStart').value,
+    level: document.getElementById('sLevel').value,
+    goal: document.getElementById('sGoal').value.trim(),
+    notes: document.getElementById('sNotes').value.trim(),
+  };
+  if (id) {
+    const s = data.students.find(x => x.id === id);
+    Object.assign(s, payload);
+  } else {
+    data.students.push({ id: uid(), active: true, measurements: [], ...payload });
+  }
+  saveData();
+  closeModal('studentModal');
+  renderAlunos(); renderDashboard();
+  if (id && currentStudentId === id) openStudentDrawer(id);
+}
+function renderAlunos() {
+  const q = (document.getElementById('studentSearch').value || '').toLowerCase();
+  const el = document.getElementById('studentGrid');
+  const list = data.students.filter(s => s.name.toLowerCase().includes(q));
+  el.innerHTML = list.length ? list.map(s => `
+    <div class="student-card" onclick="openStudentDrawer('${s.id}')">
+      <div class="name">${s.name}</div>
+      <div class="goal">${s.goal || 'Sem objetivo definido'}</div>
+      <span class="tag ${s.active !== false ? 'active' : 'inactive'}">${s.active !== false ? 'Ativo' : 'Inativo'}</span>
+    </div>
+  `).join('') : '<p class="empty-msg">Ainda não há alunos. Cria o primeiro com "Novo aluno".</p>';
+  document.getElementById('navCountAlunos').textContent = data.students.length;
+}
+
+// ---------- Drawer / ficha do aluno ----------
+let currentStudentId = null;
+function openStudentDrawer(id) {
+  currentStudentId = id;
+  const s = data.students.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('drawerName').textContent = s.name;
+  document.getElementById('drawerGoal').textContent = s.goal || '';
+  document.getElementById('tab-dados').innerHTML = `
+    <div class="field-row" style="margin-top:16px">
+      <div class="field"><label>Telefone</label><div>${s.phone || '—'}</div></div>
+      <div class="field"><label>Email</label><div>${s.email || '—'}</div></div>
+      <div class="field"><label>Início</label><div>${fmtDateFull(s.start)}</div></div>
+      <div class="field"><label>Nível</label><div>${s.level || '—'}</div></div>
+      <div class="field full"><label>Notas</label><div>${s.notes || '—'}</div></div>
+    </div>`;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="dados"]').classList.add('active');
+  document.querySelectorAll('.tabpane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-dados').classList.add('active');
+  renderMeasurements(s);
+  renderStudentPlans(s);
+  renderStudentSessions(s);
+  document.getElementById('studentDrawerOverlay').classList.add('active');
+}
+function closeDrawer() { document.getElementById('studentDrawerOverlay').classList.remove('active'); currentStudentId = null; }
+function editCurrentStudent() { openStudentModal(currentStudentId); }
+function deleteCurrentStudent() {
+  if (!confirm('Remover este aluno e todos os seus dados associados?')) return;
+  const id = currentStudentId;
+  data.students = data.students.filter(s => s.id !== id);
+  data.plans = data.plans.filter(p => p.studentId !== id);
+  data.sessions = data.sessions.filter(s => s.studentId !== id);
+  data.payments = data.payments.filter(p => p.studentId !== id);
+  saveData();
+  closeDrawer();
+  renderAlunos(); renderDashboard();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tabpane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Avaliações
+function openMeasureModal() {
+  document.getElementById('mDate').value = todayISO();
+  document.getElementById('mWeight').value = '';
+  document.getElementById('mFat').value = '';
+  document.getElementById('mNotes').value = '';
+  openModalEl('measureModal');
+}
+function saveMeasure() {
+  const s = data.students.find(x => x.id === currentStudentId);
+  if (!s) return;
+  const weight = parseFloat(document.getElementById('mWeight').value);
+  if (!document.getElementById('mDate').value || isNaN(weight)) { alert('Indica data e peso.'); return; }
+  s.measurements = s.measurements || [];
+  s.measurements.push({
+    date: document.getElementById('mDate').value,
+    weight,
+    fat: parseFloat(document.getElementById('mFat').value) || null,
+    notes: document.getElementById('mNotes').value.trim(),
+  });
+  s.measurements.sort((a,b) => a.date.localeCompare(b.date));
+  saveData();
+  closeModal('measureModal');
+  renderMeasurements(s);
+}
+function deleteMeasure(idx) {
+  const s = data.students.find(x => x.id === currentStudentId);
+  s.measurements.splice(idx, 1);
+  saveData();
+  renderMeasurements(s);
+}
+function renderMeasurements(s) {
+  const ms = s.measurements || [];
+  const chartWrap = document.getElementById('measureChartWrap');
+  if (ms.length >= 2) {
+    const weights = ms.map(m => m.weight);
+    const max = Math.max(...weights), min = Math.min(...weights);
+    const range = (max - min) || 1;
+    chartWrap.innerHTML = `
+      <div class="measure-chart">
+        ${ms.map(m => {
+          const h = 14 + ((m.weight - min) / range) * 70;
+          return `<div class="measure-bar" style="height:${h}px"><span class="mv">${m.weight}</span></div>`;
+        }).join('')}
+      </div>
+      <div class="measure-labels">${ms.map(m => `<span>${fmtDate(m.date)}</span>`).join('')}</div>
+    `;
+  } else {
+    chartWrap.innerHTML = '<p class="empty-msg">Regista pelo menos duas avaliações para ver a evolução do peso.</p>';
+  }
+  const body = document.getElementById('measureTableBody');
+  body.innerHTML = ms.length ? ms.slice().reverse().map((m) => {
+    const realIdx = ms.indexOf(m);
+    return `<tr>
+      <td class="num">${fmtDate(m.date)}</td>
+      <td class="num">${m.weight} kg</td>
+      <td class="num">${m.fat != null ? m.fat + '%' : '—'}</td>
+      <td>${m.notes || '—'}</td>
+      <td><button class="icon-btn" onclick="deleteMeasure(${realIdx})">Remover</button></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="5" class="empty-msg">Sem avaliações registadas.</td></tr>';
+}
+
+function renderStudentPlans(s) {
+  const plans = data.plans.filter(p => p.studentId === s.id);
+  const el = document.getElementById('studentPlansList');
+  el.innerHTML = plans.length ? plans.map(p => planCardHTML(p)).join('') : '<p class="empty-msg">Sem planos atribuídos a este aluno.</p>';
+}
+function renderStudentSessions(s) {
+  const sess = data.sessions.filter(x => x.studentId === s.id).sort((a,b) => (b.date+b.time).localeCompare(a.date+a.time));
+  const el = document.getElementById('studentSessionsList');
+  el.innerHTML = sess.length ? sess.map(x => sessionRowHTML(x, false)).join('') : '<p class="empty-msg">Sem sessões marcadas.</p>';
+}
+
+// ---------- Planos de treino ----------
+let exerciseCounter = 0;
+function addExerciseRow(ex) {
+  exerciseCounter++;
+  const rowId = 'ex' + exerciseCounter;
+  const wrap = document.createElement('div');
+  wrap.className = 'exercise-row';
+  wrap.id = rowId;
+  wrap.innerHTML = `
+    <input placeholder="Nome do exercício" class="ex-name" value="${ex?.name || ''}">
+    <input placeholder="4" class="ex-sets" value="${ex?.sets || ''}">
+    <input placeholder="10" class="ex-reps" value="${ex?.reps || ''}">
+    <input placeholder="20kg" class="ex-load" value="${ex?.load || ''}">
+    <input placeholder="60s" class="ex-rest" value="${ex?.rest || ''}">
+    <input placeholder="Link (foto/vídeo)" class="ex-media" value="${ex?.media || ''}">
+    <button class="icon-btn" onclick="document.getElementById('${rowId}').remove()">&times;</button>
+  `;
+  document.getElementById('exerciseRows').appendChild(wrap);
+}
+function populateStudentSelect(selectId, preselect) {
+  const sel = document.getElementById(selectId);
+  const keepFirst = selectId === 'pStudent';
+  sel.innerHTML = (keepFirst ? '<option value="">Sem aluno (modelo)</option>' : '') +
+    data.students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  if (preselect) sel.value = preselect;
+}
+function openPlanModal(preselectStudentId, editId) {
+  populateStudentSelect('pStudent', preselectStudentId || '');
+  document.getElementById('exerciseRows').innerHTML = '';
+  document.getElementById('planEditId').value = editId || '';
+  if (editId) {
+    const p = data.plans.find(x => x.id === editId);
+    document.getElementById('planModalTitle').textContent = 'Editar plano';
+    document.getElementById('pName').value = p.name;
+    document.getElementById('pStudent').value = p.studentId || '';
+    (p.exercises || []).forEach(ex => addExerciseRow(ex));
+  } else {
+    document.getElementById('planModalTitle').textContent = 'Novo plano de treino';
+    document.getElementById('pName').value = '';
+    addExerciseRow(); addExerciseRow(); addExerciseRow();
+  }
+  openModalEl('planModal');
+}
+function savePlan() {
+  const name = document.getElementById('pName').value.trim();
+  if (!name) { alert('Dá um nome ao plano.'); return; }
+  const exercises = Array.from(document.querySelectorAll('#exerciseRows .exercise-row')).map(row => ({
+    name: row.querySelector('.ex-name').value.trim(),
+    sets: row.querySelector('.ex-sets').value.trim(),
+    reps: row.querySelector('.ex-reps').value.trim(),
+    load: row.querySelector('.ex-load').value.trim(),
+    rest: row.querySelector('.ex-rest').value.trim(),
+    media: row.querySelector('.ex-media').value.trim(),
+  })).filter(ex => ex.name);
+  const editId = document.getElementById('planEditId').value;
+  const studentId = document.getElementById('pStudent').value || null;
+  if (editId) {
+    const p = data.plans.find(x => x.id === editId);
+    Object.assign(p, { name, studentId, exercises });
+  } else {
+    data.plans.push({ id: uid(), name, studentId, exercises, created: todayISO() });
+  }
+  saveData();
+  closeModal('planModal');
+  renderPlans(); renderDashboard();
+  if (currentStudentId) { const s = data.students.find(x=>x.id===currentStudentId); if (s) renderStudentPlans(s); }
+}
+function deletePlan(id) {
+  if (!confirm('Remover este plano de treino?')) return;
+  data.plans = data.plans.filter(p => p.id !== id);
+  saveData();
+  renderPlans();
+  if (currentStudentId) { const s = data.students.find(x=>x.id===currentStudentId); if (s) renderStudentPlans(s); }
+}
+function planCardHTML(p) {
+  const st = data.students.find(s => s.id === p.studentId);
+  return `<div class="plan-card">
+    <div class="phead">
+      <span class="pname">${p.name}</span>
+      <div class="row-actions">
+        <button class="icon-btn" onclick="openPlanModal('${p.studentId||''}','${p.id}')">Editar</button>
+        <button class="icon-btn" onclick="deletePlan('${p.id}')">Remover</button>
+      </div>
+    </div>
+    <div class="pmeta">${st ? st.name : 'Sem aluno atribuído'} · ${(p.exercises||[]).length} exercícios</div>
+    <table class="mini">
+      <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Carga</th><th>Descanso</th><th></th></tr></thead>
+      <tbody>${(p.exercises||[]).map(ex => `<tr><td>${ex.name}</td><td class="num">${ex.sets||'—'}</td><td class="num">${ex.reps||'—'}</td><td class="num">${ex.load||'—'}</td><td class="num">${ex.rest||'—'}</td><td>${ex.media ? `<a class="media-link" href="${escapeHtml(ex.media)}" target="_blank" rel="noopener">Ver</a>` : ''}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+function renderPlans() {
+  const el = document.getElementById('plansList');
+  el.innerHTML = data.plans.length ? data.plans.map(p => planCardHTML(p)).join('') : '<p class="empty-msg">Ainda não criaste nenhum plano de treino.</p>';
+  document.getElementById('navCountTreinos').textContent = data.plans.length;
+}
+
+// ---------- Agenda ----------
+function openSessionModal(preselectStudentId, editId) {
+  populateStudentSelect('seStudent', preselectStudentId || '');
+  document.getElementById('sessionEditId').value = editId || '';
+  if (editId) {
+    const s = data.sessions.find(x => x.id === editId);
+    document.getElementById('seStudent').value = s.studentId;
+    document.getElementById('seDate').value = s.date;
+    document.getElementById('seTime').value = s.time;
+    document.getElementById('seDuration').value = s.duration;
+    document.getElementById('seType').value = s.type || '';
+    document.getElementById('seNotes').value = s.notes || '';
+  } else {
+    document.getElementById('seDate').value = todayISO();
+    document.getElementById('seTime').value = '09:00';
+    document.getElementById('seDuration').value = 60;
+    document.getElementById('seType').value = '';
+    document.getElementById('seNotes').value = '';
+  }
+  openModalEl('sessionModal');
+}
+function saveSession() {
+  const studentId = document.getElementById('seStudent').value;
+  const date = document.getElementById('seDate').value;
+  if (!studentId || !date) { alert('Escolhe o aluno e a data.'); return; }
+  const editId = document.getElementById('sessionEditId').value;
+  const payload = {
+    studentId, date,
+    time: document.getElementById('seTime').value,
+    duration: document.getElementById('seDuration').value,
+    type: document.getElementById('seType').value.trim(),
+    notes: document.getElementById('seNotes').value.trim(),
+  };
+  if (editId) {
+    const s = data.sessions.find(x => x.id === editId);
+    Object.assign(s, payload);
+  } else {
+    data.sessions.push({ id: uid(), status: 'agendada', ...payload });
+  }
+  saveData();
+  closeModal('sessionModal');
+  renderAgenda(); renderDashboard();
+  if (currentStudentId) { const s = data.students.find(x=>x.id===currentStudentId); if (s) renderStudentSessions(s); }
+}
+function setSessionStatus(id, status) {
+  const s = data.sessions.find(x => x.id === id);
+  s.status = status;
+  saveData();
+  renderAgenda(); renderDashboard();
+  if (currentStudentId) { const st = data.students.find(x=>x.id===currentStudentId); if (st) renderStudentSessions(st); }
+}
+function deleteSession(id) {
+  if (!confirm('Remover esta sessão?')) return;
+  data.sessions = data.sessions.filter(x => x.id !== id);
+  saveData();
+  renderAgenda(); renderDashboard();
+  if (currentStudentId) { const st = data.students.find(x=>x.id===currentStudentId); if (st) renderStudentSessions(st); }
+}
+function sessionRowHTML(s, showStudentName = true) {
+  const st = data.students.find(x => x.id === s.studentId);
+  return `<div class="agenda-row" style="flex-wrap:wrap;">
+    <span class="time">${s.time || '—'}</span>
+    <div class="info">
+      <div class="who">${showStudentName ? (st ? st.name : 'Aluno removido') : fmtDateFull(s.date)}</div>
+      <div class="what">${s.type || 'Sessão'} ${s.duration ? '· ' + s.duration + ' min' : ''}</div>
+      ${s.log ? `<div class="log-summary">Registo: ${s.log.items.filter(i=>i.setsDone||i.repsDone||i.loadDone).length} exercício(s) registados${s.log.notes ? ' · ' + escapeHtml(s.log.notes) : ''}</div>` : ''}
+    </div>
+    <span class="status-pill ${s.status}">${s.status === 'agendada' ? 'Agendada' : s.status === 'concluida' ? 'Concluída' : 'Cancelada'}</span>
+    <div class="row-actions">
+      ${s.status === 'agendada' ? `<button class="icon-btn" onclick="setSessionStatus('${s.id}','concluida')">Concluir</button>` : ''}
+      <button class="icon-btn" onclick="openSessionLogModal('${s.id}')">${s.log ? 'Editar registo' : 'Registar'}</button>
+      <button class="icon-btn" onclick="openSessionModal('${s.studentId}','${s.id}')">Editar</button>
+      <button class="icon-btn" onclick="deleteSession('${s.id}')">Remover</button>
+    </div>
+  </div>`;
+}
+
+// Registo de sessão (séries/reps/carga feitas)
+function openSessionLogModal(sessionId) {
+  const s = data.sessions.find(x => x.id === sessionId);
+  if (!s) return;
+  document.getElementById('logSessionId').value = sessionId;
+  document.getElementById('logNotes').value = s.log?.notes || '';
+  const studentPlans = data.plans.filter(p => p.studentId === s.studentId);
+  const picker = document.getElementById('logPlanPicker');
+  if (!studentPlans.length) {
+    picker.innerHTML = '';
+    document.getElementById('logEmptyMsg').style.display = 'block';
+    document.getElementById('logTableBody').innerHTML = '';
+    openModalEl('sessionLogModal');
+    return;
+  }
+  document.getElementById('logEmptyMsg').style.display = 'none';
+  const selectedPlanId = s.log?.planId || studentPlans[0].id;
+  if (studentPlans.length > 1) {
+    picker.innerHTML = `<label>Plano usado nesta sessão</label>
+      <select id="logPlanSelect" onchange="renderLogTable(this.value)">
+        ${studentPlans.map(p => `<option value="${p.id}" ${p.id===selectedPlanId?'selected':''}>${p.name}</option>`).join('')}
+      </select>`;
+  } else {
+    picker.innerHTML = `<label>Plano</label><div style="padding-top:4px;font-weight:600;">${studentPlans[0].name}</div>`;
+  }
+  renderLogTable(selectedPlanId);
+  openModalEl('sessionLogModal');
+}
+function renderLogTable(planId) {
+  const s = data.sessions.find(x => x.id === document.getElementById('logSessionId').value);
+  const plan = data.plans.find(p => p.id === planId);
+  const body = document.getElementById('logTableBody');
+  if (!plan) { body.innerHTML = ''; return; }
+  const prevItems = (s.log && s.log.planId === planId) ? s.log.items : [];
+  body.innerHTML = (plan.exercises || []).map((ex, i) => {
+    const prev = prevItems.find(it => it.name === ex.name) || {};
+    return `<tr>
+      <td>${ex.name}<br><span class="log-summary">Previsto: ${ex.sets||'—'}x${ex.reps||'—'} ${ex.load?'@ '+ex.load:''}</span></td>
+      <td><input class="log-sets" data-name="${escapeHtml(ex.name)}" placeholder="${ex.sets||''}" value="${prev.setsDone||''}"></td>
+      <td><input class="log-reps" placeholder="${ex.reps||''}" value="${prev.repsDone||''}"></td>
+      <td><input class="log-load" placeholder="${ex.load||''}" value="${prev.loadDone||''}"></td>
+    </tr>`;
+  }).join('');
+}
+function saveSessionLog() {
+  const sessionId = document.getElementById('logSessionId').value;
+  const s = data.sessions.find(x => x.id === sessionId);
+  if (!s) return;
+  const planSelect = document.getElementById('logPlanSelect');
+  const rows = Array.from(document.querySelectorAll('#logTableBody tr'));
+  if (!rows.length) { closeModal('sessionLogModal'); return; }
+  const planId = planSelect ? planSelect.value : (data.plans.find(p => p.studentId === s.studentId) || {}).id;
+  const items = rows.map(row => ({
+    name: row.querySelector('.log-sets').dataset.name,
+    setsDone: row.querySelector('.log-sets').value.trim(),
+    repsDone: row.querySelector('.log-reps').value.trim(),
+    loadDone: row.querySelector('.log-load').value.trim(),
+  }));
+  s.log = { planId, items, notes: document.getElementById('logNotes').value.trim() };
+  saveData();
+  closeModal('sessionLogModal');
+  renderAgenda();
+  if (currentStudentId) { const st = data.students.find(x=>x.id===currentStudentId); if (st) renderStudentSessions(st); }
+}
+function renderAgenda() {
+  const el = document.getElementById('agendaList');
+  const upcoming = data.sessions.filter(s => s.status !== 'cancelada' && s.date >= todayISO());
+  const past = data.sessions.filter(s => s.status === 'cancelada' || s.date < todayISO());
+  const byDate = {};
+  upcoming.forEach(s => { (byDate[s.date] = byDate[s.date] || []).push(s); });
+  const dates = Object.keys(byDate).sort();
+  let html = '';
+  if (!dates.length) {
+    html = '<p class="empty-msg">Sem sessões marcadas. Usa "Marcar sessão" para começar.</p>';
+  } else {
+    dates.forEach(d => {
+      const list = byDate[d].sort((a,b) => (a.time||'').localeCompare(b.time||''));
+      html += `<div class="day-group"><h3>${fmtDateFull(d)}${d === todayISO() ? ' · Hoje' : ''}</h3>${list.map(s => sessionRowHTML(s)).join('')}</div>`;
+    });
+  }
+  if (past.length) {
+    html += `<div class="day-group"><h3>Anteriores / canceladas</h3>${past.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)).slice(0,10).map(s => sessionRowHTML(s)).join('')}</div>`;
+  }
+  el.innerHTML = html;
+  document.getElementById('navCountAgenda').textContent = upcoming.length;
+}
+
+// ---------- Pagamentos (livro de registos: mensalidade / avulsa / pacote) ----------
+function togglePackageFields() {
+  document.getElementById('payPackageTotalField').style.display =
+    document.getElementById('payType').value === 'pacote' ? 'block' : 'none';
+}
+function openPaymentModal(preStudentId, editId) {
+  populateStudentSelect('payStudent', preStudentId || '');
+  document.getElementById('payEditId').value = editId || '';
+  if (editId) {
+    const p = data.payments.find(x => x.id === editId);
+    document.getElementById('paymentModalTitle').textContent = 'Editar pagamento';
+    document.getElementById('payStudent').value = p.studentId;
+    document.getElementById('payType').value = p.type;
+    document.getElementById('payDate').value = p.date;
+    document.getElementById('payAmount').value = p.amount || '';
+    document.getElementById('payPackageTotal').value = p.packageTotal || '';
+    document.getElementById('payStatus').value = p.status;
+    document.getElementById('payDescription').value = p.description || '';
+  } else {
+    document.getElementById('paymentModalTitle').textContent = 'Novo pagamento';
+    document.getElementById('payType').value = 'mensalidade';
+    document.getElementById('payDate').value = todayISO();
+    document.getElementById('payAmount').value = '';
+    document.getElementById('payPackageTotal').value = '';
+    document.getElementById('payStatus').value = 'pendente';
+    document.getElementById('payDescription').value = '';
+  }
+  togglePackageFields();
+  openModalEl('paymentModal');
+}
+function savePayment() {
+  const studentId = document.getElementById('payStudent').value;
+  if (!studentId) { alert('Escolhe o aluno.'); return; }
+  const editId = document.getElementById('payEditId').value;
+  const type = document.getElementById('payType').value;
+  const payload = {
+    studentId, type,
+    date: document.getElementById('payDate').value,
+    amount: document.getElementById('payAmount').value.trim(),
+    status: document.getElementById('payStatus').value,
+    description: document.getElementById('payDescription').value.trim(),
+  };
+  if (type === 'pacote') payload.packageTotal = document.getElementById('payPackageTotal').value.trim();
+  if (editId) {
+    const p = data.payments.find(x => x.id === editId);
+    Object.assign(p, payload);
+  } else {
+    if (type === 'pacote') payload.packageUsed = 0;
+    data.payments.push({ id: uid(), ...payload });
+  }
+  saveData();
+  closeModal('paymentModal');
+  renderLedger(); renderDashboard();
+}
+function togglePaymentStatus(id) {
+  const p = data.payments.find(x => x.id === id);
+  p.status = p.status === 'pago' ? 'pendente' : 'pago';
+  saveData();
+  renderLedger(); renderDashboard();
+}
+function usePackageSession(id) {
+  const p = data.payments.find(x => x.id === id);
+  const total = Number(p.packageTotal) || 0;
+  p.packageUsed = Math.min(total, (Number(p.packageUsed) || 0) + 1);
+  saveData();
+  renderLedger();
+}
+function deletePaymentRecord(id) {
+  if (!confirm('Remover este registo de pagamento?')) return;
+  data.payments = data.payments.filter(x => x.id !== id);
+  saveData();
+  renderLedger(); renderDashboard();
+}
+function typeLabel(t) { return t === 'mensalidade' ? 'Mensalidade' : t === 'avulsa' ? 'Avulsa' : 'Pacote'; }
+function paymentRowHTML(p) {
+  let extra = '';
+  if (p.type === 'pacote') {
+    const total = Number(p.packageTotal) || 0;
+    const used = Number(p.packageUsed) || 0;
+    const pct = total ? Math.min(100, Math.round(used/total*100)) : 0;
+    extra = `<div class="pkg-progress"><div class="pkg-progress-fill" style="width:${pct}%"></div></div>
+      <div class="log-summary">${used}/${total || '—'} sessões usadas
+        ${total ? `<button class="icon-btn" style="padding:2px 4px" onclick="usePackageSession('${p.id}')">+1 usada</button>` : ''}
+      </div>`;
+  }
+  return `<tr>
+    <td class="num">${fmtDate(p.date)}</td>
+    <td><span class="billing-type-pill">${typeLabel(p.type)}</span></td>
+    <td>${p.description || '—'}${extra}</td>
+    <td class="num">${p.amount ? '€' + p.amount : '—'}</td>
+    <td><button class="pay-status ${p.status}" onclick="togglePaymentStatus('${p.id}')">${p.status === 'pago' ? 'Pago' : 'Pendente'}</button></td>
+    <td><div class="row-actions">
+      <button class="icon-btn" onclick="openPaymentModal('${p.studentId}','${p.id}')">Editar</button>
+      <button class="icon-btn" onclick="deletePaymentRecord('${p.id}')">Remover</button>
+    </div></td>
+  </tr>`;
+}
+function renderLedger() {
+  const el = document.getElementById('ledgerList');
+  const students = data.students.filter(s => s.active !== false);
+  el.innerHTML = students.length ? students.map(s => {
+    const entries = data.payments.filter(p => p.studentId === s.id).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    return `<div class="student-ledger-card">
+      <div class="lhead">
+        <span class="lname">${s.name}</span>
+        <button class="btn small secondary" onclick="openPaymentModal('${s.id}')">+ Pagamento</button>
+      </div>
+      ${entries.length ? `<table class="mini">
+        <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Estado</th><th></th></tr></thead>
+        <tbody>${entries.map(p => paymentRowHTML(p)).join('')}</tbody>
+      </table>` : '<p class="empty-msg">Sem pagamentos registados.</p>'}
+    </div>`;
+  }).join('') : '<p class="empty-msg">Sem alunos ativos.</p>';
+}
+
+// ---------- Exportar / Importar / Cópia de segurança ----------
+const BACKUP_KEY = 'ficha-pt-last-backup';
+let downloadsCap = null;
+let pendingImport = null;
+
+async function initCapabilities() {
+  try {
+    if (window.claude && window.claude.use) {
+      downloadsCap = await window.claude.use('downloads');
+    }
+  } catch (e) { downloadsCap = null; }
+}
+
+function backupFilename() {
+  return `ficha-pt-backup-${todayISO()}.json`;
+}
+
+function renderDadosView() {
+  const last = localStorage.getItem(BACKUP_KEY);
+  document.getElementById('lastBackupLabel').textContent = last
+    ? `Última cópia de segurança: ${new Date(last).toLocaleString('pt-PT')}`
+    : 'Ainda não fizeste nenhuma cópia de segurança.';
+}
+
+// Helper genérico: tenta oferecer a transferência de um ficheiro; se não for
+// possível nesta vista, mostra o conteúdo num modal para cópia manual.
+async function offerFileDownload(filename, content) {
+  if (downloadsCap) {
+    try {
+      await downloadsCap.save({ filename, data: content });
+      return true;
+    } catch (e) {
+      if (e && e.code === 'declined') return false; // o utilizador cancelou
+      // qualquer outro erro: cai para o modo de cópia manual abaixo
+    }
+  }
+  document.getElementById('downloadFallbackTitle').textContent = 'Copiar ficheiro';
+  document.getElementById('downloadFallbackFilename').textContent = filename;
+  document.getElementById('downloadFallbackText').value = content;
+  openModalEl('downloadFallbackModal');
+  return false;
+}
+function copyDownloadFallback() {
+  const ta = document.getElementById('downloadFallbackText');
+  ta.select();
+  try {
+    navigator.clipboard.writeText(ta.value);
+    alert('Texto copiado. Cola-o num ficheiro novo com o nome indicado.');
+  } catch (e) {
+    alert('Não foi possível copiar automaticamente. Seleciona o texto e copia manualmente (Ctrl/Cmd+C).');
+  }
+}
+
+async function exportData() {
+  const json = JSON.stringify(data, null, 2);
+  await offerFileDownload(backupFilename(), json);
+  localStorage.setItem(BACKUP_KEY, new Date().toISOString());
+  renderDadosView();
+}
+
+// ---------- Enviar ficha ao aluno (vista exportável, sem contas nem login) ----------
+function slugify(str) {
+  return (str || 'aluno').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'aluno';
+}
+async function exportStudentSnapshot(studentId) {
+  const s = data.students.find(x => x.id === studentId);
+  if (!s) return;
+  const plans = data.plans.filter(p => p.studentId === studentId);
+  const upcoming = data.sessions
+    .filter(x => x.studentId === studentId && x.status !== 'cancelada' && x.date >= todayISO())
+    .sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time))
+    .slice(0, 5);
+  const ms = s.measurements || [];
+
+  const planHTML = plans.length ? plans.map(p => `
+    <div class="plan">
+      <h3>${escapeHtml(p.name)}</h3>
+      <table>
+        <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Carga</th><th>Descanso</th><th></th></tr></thead>
+        <tbody>${(p.exercises||[]).map(ex => `<tr>
+          <td>${escapeHtml(ex.name)}</td><td>${escapeHtml(ex.sets)||'—'}</td><td>${escapeHtml(ex.reps)||'—'}</td>
+          <td>${escapeHtml(ex.load)||'—'}</td><td>${escapeHtml(ex.rest)||'—'}</td>
+          <td>${ex.media ? `<a href="${escapeHtml(ex.media)}" target="_blank" rel="noopener">Ver foto/vídeo</a>` : ''}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`).join('') : '<p class="muted">Ainda sem plano de treino atribuído.</p>';
+
+  const sessionsHTML = upcoming.length ? `<ul>${upcoming.map(x => `<li><strong>${fmtDateFull(x.date)}</strong> às ${x.time || '—'} · ${escapeHtml(x.type)||'Sessão'}</li>`).join('')}</ul>` : '<p class="muted">Sem sessões marcadas de momento.</p>';
+
+  const weightHTML = ms.length ? `<table><thead><tr><th>Data</th><th>Peso</th><th>% Gordura</th></tr></thead><tbody>${ms.map(m => `<tr><td>${fmtDateFull(m.date)}</td><td>${m.weight} kg</td><td>${m.fat!=null?m.fat+'%':'—'}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">Ainda sem avaliações registadas.</p>';
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-PT"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(s.name)} — Ficha de treino</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#F0EEE7;color:#171B1F;margin:0;padding:24px 18px 60px;max-width:760px;margin-inline:auto}
+  h1{font-size:24px;margin:0 0 4px}
+  h2{font-size:16px;margin:32px 0 10px;border-bottom:1px solid #DCD7CA;padding-bottom:6px}
+  h3{font-size:15px;margin:18px 0 8px}
+  p.lede{color:#5B6470;margin:0 0 4px;font-size:13.5px}
+  .muted{color:#5B6470;font-size:13px}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid #E9E5DA;border-radius:4px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #E9E5DA}
+  th{font-size:11px;color:#5B6470;background:#F5F3EC}
+  .plan{margin-bottom:20px}
+  .foot{margin-top:40px;font-size:11.5px;color:#8A8F94}
+  a{color:#223354}
+</style></head>
+<body>
+  <h1>${escapeHtml(s.name)}</h1>
+  <p class="lede">${escapeHtml(s.goal || '')}</p>
+  <h2>Plano de treino</h2>
+  ${planHTML}
+  <h2>Próximas sessões</h2>
+  ${sessionsHTML}
+  <h2>Evolução</h2>
+  ${weightHTML}
+  <p class="foot">Ficha gerada em ${fmtDateFull(todayISO())}. Fala com o teu personal trainer para atualizações.</p>
+</body></html>`;
+
+  await offerFileDownload(`${slugify(s.name)}-treino.html`, html);
+}
+
+function isValidBackup(obj) {
+  return obj && typeof obj === 'object' &&
+    Array.isArray(obj.students) && Array.isArray(obj.plans) &&
+    Array.isArray(obj.sessions) && Array.isArray(obj.payments);
+}
+
+function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  document.getElementById('importFileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (!isValidBackup(parsed)) {
+        alert('Este ficheiro não parece ser uma cópia de segurança válida desta app.');
+        return;
+      }
+      pendingImport = parsed;
+      document.getElementById('importSummary').textContent =
+        `Ficheiro com ${parsed.students.length} aluno(s), ${parsed.plans.length} plano(s), ${parsed.sessions.length} sessão(ões) e ${parsed.payments.length} pagamento(s). Escolhe como aplicar:`;
+      document.getElementById('importPending').style.display = 'block';
+    } catch (e) {
+      alert('Não foi possível ler este ficheiro. Confirma que é um .json exportado por esta app.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function cancelImport() {
+  pendingImport = null;
+  document.getElementById('importPending').style.display = 'none';
+  document.getElementById('importFileInput').value = '';
+  document.getElementById('importFileName').textContent = '';
+}
+
+function applyImport(mode) {
+  if (!pendingImport) return;
+  if (mode === 'replace') {
+    if (!confirm('Isto substitui TODOS os dados atuais pelos do ficheiro importado. Continuar?')) return;
+    data = {
+      students: pendingImport.students || [],
+      plans: pendingImport.plans || [],
+      sessions: pendingImport.sessions || [],
+      payments: pendingImport.payments || [],
+    };
+  } else {
+    if (!confirm('Isto junta os dados do ficheiro aos dados atuais (sem apagar nada). Continuar?')) return;
+    ['students','plans','sessions','payments'].forEach(key => {
+      const existingIds = new Set(data[key].map(x => x.id));
+      (pendingImport[key] || []).forEach(item => {
+        if (!existingIds.has(item.id)) data[key].push(item);
+      });
+    });
+  }
+  saveData();
+  cancelImport();
+  renderDashboard(); renderAlunos(); renderPlans(); renderAgenda(); renderLedger();
+  alert('Importação concluída.');
+}
+
+// ---------- Init ----------
+loadData();
+initCapabilities();
+renderDashboard();
+renderAlunos();
+renderPlans();
+renderAgenda();
+renderLedger();
+</script>
+</body>
+</html>
